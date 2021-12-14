@@ -11,6 +11,7 @@ import json
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly
+import altair as alt
 
 
 googlesql = sqlalchemy.engine.url.URL.create(
@@ -71,13 +72,15 @@ def get_data_charts():
 
 
 
-st.set_page_config(layout="wide", page_title='Uyghur tweets')
+st.set_page_config(layout="wide", page_title='StreamListenerDashboard')
 
 data, timestamp = get_data()
 
-st.header('China Uyghur')
+st.header('Tweepy StreamListener Dashboard: #FreeUyghurs, #FuckCCP')
 st.write('Total tweet count: {}'.format(data.shape[0]))
 st.write('Data last loaded {}'.format(timestamp))
+st.write('Listening to following keywords: Uyghur,uyghur,#uyghur,#freeuyghurs,#FreeUyghurs,#FreeUyghur,#UyghurLivesMatter,')
+st.write('#UyghurGenocide,#uyghur,#Uyghur,#Uyghurs,#uyghurs,freeyughurs,FreeUyghurs,Xinjiang,#Xinjiang,#EastTurkestan,uighur,Uighur,#uighur,#Uighur')
 
 col1, col2 = st.columns(2)
 
@@ -91,11 +94,11 @@ data_daily = filter_by_date(data_subjects, start_date_option, end_date_option)
 
 top_daily_tweets = data_daily.sort_values(['Followers'], ascending=False).head(10)
 
-col1.subheader('Influential Tweets')
-col1.dataframe(top_daily_tweets[['Tweet', 'Timestamp', 'Followers', 'Subject']].reset_index(drop=True), 1000, 400)
+# col1.subheader('Influential Tweets')
+# col1.dataframe(top_daily_tweets[['Tweet', 'Timestamp', 'Followers', 'Subject']].reset_index(drop=True), 1000, 400)
 
-col2.subheader('Recent Tweets')
-col2.dataframe(data_daily[['Tweet', 'Timestamp', 'Followers', 'Subject']].sort_values(['Timestamp'], ascending=False).
+col1.subheader('Recent Tweets')
+col1.dataframe(data_daily[['Tweet', 'Timestamp', 'Followers', 'Subject']].sort_values(['Timestamp'], ascending=False).
                reset_index(drop=True).head(10))
 
 plot_freq_options = {
@@ -106,18 +109,48 @@ plot_freq_options = {
 plot_freq_box = st.sidebar.selectbox(label='Plot Frequency:', options=list(plot_freq_options.keys()), index=0)
 plot_freq = plot_freq_options[plot_freq_box]
 
-col1.subheader('Tweet Volumes')
-plotdata = count_plot_data(data_daily, plot_freq)
-col1.line_chart(plotdata)
-
-col2.subheader('Mean Sentiment')
-plotdata2 = sentiment_plot_data(data_daily, plot_freq)
-col2.line_chart(plotdata2)
-
-
 df = get_data_charts()
+
+col2.subheader('Keyword distribution')
 valuecounts = df["keyword"].value_counts().tolist()
 uniquesubject = df["keyword"].unique()
-fig = px.pie(values=valuecounts, names=uniquesubject, title='Keyword distribution')
-st.plotly_chart(fig)
+fig = px.pie(values=valuecounts, names=uniquesubject)
+col2.plotly_chart(fig)
+
+
+st.subheader('Tweet Volumes')
+plotdata = count_plot_data(data_daily, plot_freq)
+st.line_chart(plotdata)
+
+
+st.subheader('Sentiment analysis visualisation: Truncated compound vaderSentiment score')
+compoundscore = df["sentiment"]
+
+
+df["compound_trunc"] = compoundscore.round(1) # Truncate compound scores into 0.1 buckets 
+
+res = (df.groupby(["compound_trunc"])["id"]
+        .count()
+        .reset_index()
+        .rename(columns={"id": "count"})
+      )
+
+hist = alt.Chart(res).mark_bar(width=35).encode(
+    alt.X("compound_trunc:Q", axis=alt.Axis(title="")),
+    y=alt.Y('count:Q', axis=alt.Axis(title="")),
+    color=alt.Color('compound_trunc:Q', scale=alt.Scale(scheme='redyellowgreen')), 
+    tooltip=['compound_trunc', 'count']).properties(
+    width=1400,
+    height=400
+)
+hist
+
+st.subheader('Sentiment analysis visualisation: Scatter plot of clean compound score provided by vaderSentiment')
+scatter = alt.Chart(df).mark_point().encode(
+    alt.X("tweet_date", axis=alt.Axis(title="")),
+    y=alt.Y('sentiment', axis=alt.Axis(title="")),
+    color=alt.Color('sentiment:Q', scale=alt.Scale(scheme='redyellowgreen')), 
+    tooltip=['body', 'userid','sentiment:Q', 'tweet_date']).properties(width=1360,height=400
+)
+scatter
 

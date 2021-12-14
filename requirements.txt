@@ -10,3 +10,4 @@ plotly
 plotly.express
 numpy
 seaborn
+altair

@@ -9,5 +9,3 @@ matplotlib
 plotly
 plotly.express
 numpy
-matplotlib.pyplot
-matplotlib.font_manager

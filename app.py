@@ -4,6 +4,15 @@ from sqlalchemy import create_engine
 from config import DBConfig
 import datetime
 import sqlalchemy
+import matplotlib.pyplot as plt
+import numpy
+import matplotlib.font_manager as fm
+from streamlit_echarts import st_echarts
+import json
+import plotly.graph_objects as go
+import plotly.express as px
+import plotly
+
 
 googlesql = sqlalchemy.engine.url.URL.create(
     drivername="mysql+pymysql",
@@ -25,7 +34,7 @@ def get_data():
     df = pd.read_sql_table('tweets', get_con())
     df = df.rename(columns={'body': 'Tweet', 'tweet_date': 'Timestamp',
                             'followers': 'Followers', 'sentiment': 'Sentiment',
-                            'keyword': 'Subject'})
+                            'keyword': 'Subject', 'tweetsource': 'Tweeting platform', 'tweetid': 'Tweet ID'})
     return df, timestamp
 
 
@@ -54,6 +63,13 @@ def sentiment_plot_data(df, freq):
     plot_df.index.rename('Date', inplace=True)
     plot_df = plot_df.rename_axis(None, axis='columns')
     return plot_df
+
+@st.cache(allow_output_mutation=True, show_spinner=False)
+def get_data_charts():
+    df = pd.read_sql_table('tweets', get_con())
+    return df
+
+
 
 
 st.set_page_config(layout="wide", page_title='Uyghur tweets')
@@ -99,4 +115,10 @@ col2.subheader('Mean Sentiment')
 plotdata2 = sentiment_plot_data(data_daily, plot_freq)
 col2.line_chart(plotdata2)
 
+
+df = get_data_charts()
+valuecounts = df["keyword"].value_counts().tolist()
+uniquesubject = df["keyword"].unique()
+fig = px.pie(values=valuecounts, names=uniquesubject, title='Keyword distribution')
+st.plotly_chart(fig)
 

@@ -5,3 +5,4 @@ streamlit==1.2.0
 tweepy==3.10.0
 vaderSentiment==3.3.2
 PyMySQL==1.0.2
+matplotlib

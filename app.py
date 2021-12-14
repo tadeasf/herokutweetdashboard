@@ -7,7 +7,6 @@ import sqlalchemy
 import matplotlib.pyplot as plt
 import numpy
 import matplotlib.font_manager as fm
-from streamlit_echarts import st_echarts
 import json
 import plotly.graph_objects as go
 import plotly.express as px

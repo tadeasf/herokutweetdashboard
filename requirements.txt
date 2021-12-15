@@ -11,3 +11,6 @@ plotly.express
 numpy
 seaborn
 altair
+cpython
+re
+nltk

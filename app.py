@@ -154,3 +154,34 @@ scatter = alt.Chart(df).mark_point().encode(
 )
 scatter
 
+topics = ''.join(df['body'])
+topics = re.sub(r"http\S+", "", topics)
+topics = topics.replace('RT ', ' ').replace('&amp;', 'and')
+topics = re.sub('[^A-Za-z0-9]+', ' ', topics)
+topics = topics.lower()
+
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+
+from nltk.probability import FreqDist
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+tokenized_words = word_tokenize(topics)
+stop_words=set(stopwords.words("english"))
+filtered_sent=[]
+for w in tokenized_words:
+    if w not in stop_words:
+        filtered_sent.append(w)
+fdist = FreqDist(filtered_sent)
+fd = pd.DataFrame(fdist.most_common(10),
+                  columns = ["Word", "Frequency"]).drop([0]).reindex()
+
+
+barchart = alt.Chart(fd).mark_bar().encode(
+    alt.X('Frequency', axis=alt.Axis(title="")),
+    alt.Y('Word', axis=alt.Axis(title="")),
+    color=alt.Color('Frequency:Q', scale=alt.Scale(scheme='inferno'))).properties(width=1400,height=400
+)
+barchart

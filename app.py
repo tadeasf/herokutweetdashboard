@@ -11,6 +11,7 @@ import json
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly
+import vega
 import altair as alt
 import re
 
@@ -70,6 +71,8 @@ def get_data_charts():
     df = pd.read_sql_table('tweets', get_con())
     return df
 
+df = get_data_charts()
+
 topics = ''.join(df['body'])
 topics = re.sub(r"http\S+", "", topics)
 topics = topics.replace('RT ', ' ').replace('&amp;', 'and')
@@ -93,7 +96,8 @@ for w in tokenized_words:
 fdist = FreqDist(filtered_sent)
 fd = pd.DataFrame(fdist.most_common(10),
                   columns = ["Word", "Frequency"]).drop([0]).reindex()
-df = get_data_charts()
+
+
 # End of data prep
 
 st.set_page_config(layout="wide", page_title='StreamListenerDashboard')
@@ -118,7 +122,7 @@ data_daily = filter_by_date(data_subjects, start_date_option, end_date_option)
 
 top_daily_tweets = data_daily.sort_values(['Followers'], ascending=False).head(10)
 
-# col1.subheader('Influential Tweets')
+# col1.subheader('Influential Tweets') 
 # col1.dataframe(top_daily_tweets[['Tweet', 'Timestamp', 'Followers', 'Subject']].reset_index(drop=True), 1000, 400)
 
 col1.subheader('Recent Tweets')
@@ -134,29 +138,39 @@ plot_freq_box = st.sidebar.selectbox(label='Plot Frequency:', options=list(plot_
 plot_freq = plot_freq_options[plot_freq_box]
 
 
-col2.subheader('Keyword distribution')
-valuecounts = df["keyword"].value_counts().tolist()
-uniquesubject = df["keyword"].unique()
-fig = px.pie(values=valuecounts, names=uniquesubject)
-col2.plotly_chart(fig)
-
-
-st.subheader('Tweet Volumes')
-plotdata = count_plot_data(data_daily, plot_freq)
-st.line_chart(plotdata)
-
-st.subheader('Most frequently used words in Tweets about Uyghurs and Xinjiang')
 barchart = alt.Chart(fd).mark_bar().encode(
     alt.X('Frequency', axis=alt.Axis(title="")),
     alt.Y('Word', axis=alt.Axis(title="")),
-    color=alt.Color('Frequency:Q', scale=alt.Scale(scheme='greens'))).properties(width=1400,height=400
+    color=alt.Color('Frequency:Q', scale=alt.Scale(scheme='greens'))
 )
-barchart
 
-st.subheader('Sentiment analysis visualisation: Truncated compound vaderSentiment score')
+
+
+
+col2.subheader('Tweet Volumes')
+plotdata = count_plot_data(data_daily, plot_freq)
+col2.line_chart(plotdata)
+
+
+
+col3, col4 = st.columns(2)
+
+
+
+
+col3.subheader('Most frequent words')
+col3.altair_chart(barchart, use_container_width=True)
+
+
+col4.subheader('Keyword distribution')
+valuecounts = df["keyword"].value_counts().tolist()
+uniquesubject = df["keyword"].unique()
+fig = px.pie(values=valuecounts, names=uniquesubject)
+col4.plotly_chart(fig, use_container_width=True)
+
+st.subheader('Sentiment data analysis visualisation')
+
 compoundscore = df["sentiment"]
-
-
 df["compound_trunc"] = compoundscore.round(1) # Truncate compound scores into 0.1 buckets 
 
 res = (df.groupby(["compound_trunc"])["id"]
@@ -169,26 +183,20 @@ hist = alt.Chart(res).mark_bar(width=35).encode(
     alt.X("compound_trunc:Q", axis=alt.Axis(title="")),
     y=alt.Y('count:Q', axis=alt.Axis(title="")),
     color=alt.Color('compound_trunc:Q', scale=alt.Scale(scheme='redyellowgreen')), 
-    tooltip=['compound_trunc', 'count']).properties(
-    width=1400,
-    height=400
+    tooltip=['compound_trunc', 'count']
 )
-hist
 
-st.subheader('Sentiment analysis visualisation: Scatter plot of clean compound score provided by vaderSentiment')
 scatter = alt.Chart(df).mark_point().encode(
     alt.X("tweet_date", axis=alt.Axis(title="")),
     y=alt.Y('sentiment', axis=alt.Axis(title="")),
     color=alt.Color('sentiment:Q', scale=alt.Scale(scheme='redyellowgreen')), 
-    tooltip=['body', 'userid','sentiment:Q', 'tweet_date']).properties(width=1360,height=400
+    tooltip=['body', 'userid','sentiment:Q', 'tweet_date']
 )
-scatter
 
+col5, col6 = st.columns(2)
 
-st.subheader('Most frequently used words in Tweets about Uyghurs and Xinjiang')
-barchart = alt.Chart(fd).mark_bar().encode(
-    alt.X('Frequency', axis=alt.Axis(title="")),
-    alt.Y('Word', axis=alt.Axis(title="")),
-    color=alt.Color('Frequency:Q', scale=alt.Scale(scheme='greens'))).properties(width=1400,height=400
-)
-barchart
+col5.subheader('Truncated compound vaderSentiment score')
+col5.altair_chart(hist, use_container_width=True)
+col6.subheader('Scatter plot of clean compound score provided by vaderSentiment')
+col6.altair_chart(scatter, use_container_width=True)
+

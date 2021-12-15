@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly
 import altair as alt
+import re
 
 
 googlesql = sqlalchemy.engine.url.URL.create(

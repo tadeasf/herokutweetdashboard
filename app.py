@@ -84,6 +84,10 @@ topics = topics.lower()
 
 tokenized_words = word_tokenize(topics)
 stop_words=set(stopwords.words("english"))
+
+stop_words.update(('uyghur','uyghurs','uighur','uighurs','house'))
+
+
 filtered_sent=[]
 for w in tokenized_words:
     if w not in stop_words:
@@ -91,6 +95,8 @@ for w in tokenized_words:
 fdist = FreqDist(filtered_sent)
 fd = pd.DataFrame(fdist.most_common(10),
                   columns = ["Word", "Frequency"]).drop([0]).reindex()
+
+
 
 
 # End of data prep

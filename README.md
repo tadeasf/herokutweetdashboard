@@ -4,21 +4,29 @@ Oh well, it sounds nice. -> hit me with an issue if you're not sure how it works
 Vážení, prezentuju vám v týhle repo výsledek mýho osobního neplánovanýho téměř 40 hodinovýho hackatonu aka Tadeáš se učí s pythonem. Každej jsme nějakej, že jo.
 Někteří budou rozumět, jiní ne. Můžete to komentovat. Můžete se ptát. Můžete si ze mě i utahovat!
 Ale teď už teda k věci: vo co jde a co to umí?
-Python má šikovnou knihovnu - tweepy. Ta umí "poslouchat" stream novejch tweetů a tahat z něj data podle různejch kritérií. To je skvělý a vokolo toho se celej tenhle projekt teď točí.
+Python má šikovnou knihovnu - tweepy. Ta umí "poslouchat" stream novejch tweetů a tahat z něj data podle různejch kritérií. To je skvělý a vokolo toho se celej tenhle projekt teď točí.  
+
 Víceméně jsem nastavil sadu skriptů tak, aby mi sbírala důležité informace z tweetů o Ujgurech. Takový tý utlačovaný muslimský menšině. Má v tom prsty Čína a tak.
 Na tweetech je skvělý to, že bejvaj plný emocí. Python toho umí využít a má přednaučenej model vaderSentiment, kterej umí relativně velmi dobře rozpoznat, jestli chtěl tweetující sdělit něco hezkého nebo ošklivého.
+
 Jenže teď má můj skript plnou paměť dobře zpracovanejch dat, ale nemá je kam dát. Pushovat je do jsonu, csvčka nebo něčeho podobnýho? Meh, to by bylo peklo. Chci, aby tahle věc běžela 24/7 a byla neustále aktuální.
+
 Jak na to? 
+
 Skript automaticky dumpuje každej tweet do SQL databáze (schématu) ve kterým si z ničeho umí vytvořit pro něj adekvátní tabulku. Je prostě šikovnej.
 Na začátku jsem tenhle setup jel samozřejmě lokálně, ale nedalo mi to, fakt jsem chtěl, aby to běželo pořád. A tam začlo peklo.
 Připojovat se přes python skript z externí služby na SQL servr je dost problematický. Whitelistovat IP poskytavatele serverovejch služeb si říká vo průšvih.
 No, po několika hodinách zkoušení různejch věcí (dokonce jsem zkoušel zneužít i webhosting otcovo firmy od wedosu) jsem se dobral výsledku: aws RDS + jejich EC2 instance. 
 Tyhle dvě služby si spolu rozumí. Aby toho nebylo málo, tak je Bezos prostě cool týpek a prvotní setup služeb s balíčkama mini je na rok zadarmo. Tweetů o ujgurech bude mít amerika uloženejch hodně. Ou jé.
+
 Inu, jo, takže core proces, kterej jsem s datama z twitteru chtěl zatím provádět probíhal. Ale jak se jako mám pochlubit? A kontrolovat, že přibejvaj tweety do databáze přes mysql workbench asi taky není úplně ideální, že jo.
+
 Proto se stal Dashboard, kterej tady taky vidíte. Vizualizace týhle mojí dřiny, potu (někteří víte, jak chodím oblíkanej doma) a intelektuálního vypětí.
 Co v něm můžete vidět?
+
 Nejčerstvější tweety, jaký klíčový slova sbírám a kolik kterejch je. Poměrově. Koláč nemohl chybět a čárky su taky fajne.
 Ty další dva grafy rád vysvětlím komukoliv, kdo se o to bude zajímat. Už mě bolej ruce, fakt.
+
 Jakýkoliv připomínky uvítám. Kdo máte github, hoďte je i klidně do issues. A lokálně to rozjet taky není nutně problém, nastavil jsem skrz config a .env docela jednoduchej workflow pro změnu uživatelskejch údajů. Navíc mě heroku donutilo (to je zas služba, která mi zdarma jede skript s Dashboardem, kterej IRL aktualizuje grafíky, ňam), abych řádně aktualizoval requirements.txt. Takže jo, stačí rozjet další environ a můžete si to zkusit taky. Budu rád.
 
 # WHAT'S NEXT?!

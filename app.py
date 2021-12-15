@@ -13,7 +13,10 @@ import plotly.express as px
 import plotly
 import altair as alt
 import re
-
+import nltk
+from nltk.probability import FreqDist
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 
 googlesql = sqlalchemy.engine.url.URL.create(
     drivername="mysql+pymysql",
@@ -78,13 +81,6 @@ topics = topics.replace('RT ', ' ').replace('&amp;', 'and')
 topics = re.sub('[^A-Za-z0-9]+', ' ', topics)
 topics = topics.lower()
 
-import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-
-from nltk.probability import FreqDist
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
 
 tokenized_words = word_tokenize(topics)
 stop_words=set(stopwords.words("english"))

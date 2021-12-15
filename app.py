@@ -93,7 +93,7 @@ for w in tokenized_words:
 fdist = FreqDist(filtered_sent)
 fd = pd.DataFrame(fdist.most_common(10),
                   columns = ["Word", "Frequency"]).drop([0]).reindex()
-
+df = get_data_charts()
 # End of data prep
 
 st.set_page_config(layout="wide", page_title='StreamListenerDashboard')
@@ -133,7 +133,6 @@ plot_freq_options = {
 plot_freq_box = st.sidebar.selectbox(label='Plot Frequency:', options=list(plot_freq_options.keys()), index=0)
 plot_freq = plot_freq_options[plot_freq_box]
 
-df = get_data_charts()
 
 col2.subheader('Keyword distribution')
 valuecounts = df["keyword"].value_counts().tolist()

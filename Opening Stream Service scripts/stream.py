@@ -52,4 +52,3 @@ class TweetListener(StreamListener):
             if keyword in body:
                 return keyword
         return None
-

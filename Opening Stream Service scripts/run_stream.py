@@ -1,9 +1,12 @@
-import os, logging, datetime, argparse
+import argparse
+import datetime
+import logging
+import os
 from logging.handlers import RotatingFileHandler
-from stream import TweetListener
-from tweepy import Stream
 from tweepy import OAuthHandler
+from tweepy import Stream
 from config import TwitterConfig
+from stream import TweetListener
 
 log_dir = 'Logs'
 if not os.path.exists(log_dir):
@@ -23,7 +26,6 @@ def parse_args():
     return args
 
 
-
 auth = OAuthHandler(TwitterConfig.CONSUMER_KEY, TwitterConfig.CONSUMER_SECRET)
 auth.set_access_token(TwitterConfig.ACCESS_TOKEN, TwitterConfig.ACCESS_TOKEN_SECRET)
 keywords = parse_args().keywords.split(',')
@@ -41,6 +43,6 @@ def start_stream():
         except:
             continue
 
+
 if __name__ == '__main__':
     start_stream()
-

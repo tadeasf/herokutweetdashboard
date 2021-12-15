@@ -17,7 +17,7 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
   
 # the ID of the user
-id = 83833848
+userid = 83833848
   
 # fetching the user
 user = api.get_user(id)

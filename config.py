@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
+
 
 class TwitterConfig:
     CONSUMER_KEY = os.environ.get('CONSUMER_KEY')

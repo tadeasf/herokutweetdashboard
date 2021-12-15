@@ -4,16 +4,9 @@ from sqlalchemy import create_engine
 from config import DBConfig
 import datetime
 import sqlalchemy
-import matplotlib.pyplot as plt
-import numpy
-import matplotlib.font_manager as fm
-import json
-import plotly.graph_objects as go
 import plotly.express as px
-import plotly
 import altair as alt
 import re
-import nltk
 from nltk.probability import FreqDist
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -32,46 +25,50 @@ def get_con():
     return create_engine(googlesql)
 
 
-@st.cache(allow_output_mutation=True, show_spinner=False, ttl=5*60)
+@st.cache(allow_output_mutation=True, show_spinner=False, ttl=5 * 60)
 def get_data():
-    timestamp = datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-    df = pd.read_sql_table('tweets', get_con())
-    df = df.rename(columns={'body': 'Tweet', 'tweet_date': 'Timestamp',
-                            'followers': 'Followers', 'sentiment': 'Sentiment',
-                            'keyword': 'Subject', 'tweetsource': 'Tweeting platform', 'tweetid': 'Tweet ID'})
-    return df, timestamp
+    timeisvaluable = datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+    df1 = pd.read_sql_table('tweets', get_con())
+    df1 = df1.rename(columns={'body': 'Tweet', 'tweet_date': 'Timestamp',
+                              'followers': 'Followers', 'sentiment': 'Sentiment',
+                              'keyword': 'Subject', 'tweetsource': 'Tweeting platform', 'tweetid': 'Tweet ID'})
+    return df1, timeisvaluable
 
 
 @st.cache(show_spinner=False)
-def filter_by_date(df, start_date, end_date):
-    df_filtered = df.loc[(df.Timestamp.dt.date >= start_date) & (df.Timestamp.dt.date <= end_date)]
+def filter_by_date(df2, start_date, end_date):
+    df_filtered = df2.loc[(df2.Timestamp.dt.date >= start_date) & (df2.Timestamp.dt.date <= end_date)]
     return df_filtered
 
 
 @st.cache(show_spinner=False)
-def filter_by_subject(df, subjects):
-    return df[df.Subject.isin(subjects)]
+def filter_by_subject(df3, subjects):
+    return df3[df3.Subject.isin(subjects)]
 
 
 @st.cache
-def count_plot_data(df, freq):
-    plot_df = df.set_index('Timestamp').groupby('Subject').resample(freq).id.count().unstack(level=0, fill_value=0)
+def count_plot_data(df4, freq):
+    plot_df = df4.set_index('Timestamp').groupby('Subject').resample(freq).id.count().unstack(level=0, fill_value=0)
     plot_df.index.rename('Date', inplace=True)
     plot_df = plot_df.rename_axis(None, axis='columns')
     return plot_df
 
 
 @st.cache
-def sentiment_plot_data(df, freq):
-    plot_df = df.set_index('Timestamp').groupby('Subject').resample(freq).Sentiment.mean().unstack(level=0, fill_value=0)
+def sentiment_plot_data(df5, freq):
+    plot_df = df5.set_index('Timestamp').groupby('Subject').resample(freq).Sentiment.mean().unstack(level=0,
+                                                                                                    fill_value=0)
     plot_df.index.rename('Date', inplace=True)
     plot_df = plot_df.rename_axis(None, axis='columns')
     return plot_df
+
 
 @st.cache(allow_output_mutation=True, show_spinner=False)
 def get_data_charts():
-    df = pd.read_sql_table('tweets', get_con())
-    return df
+    # noinspection PyPackageRequirements
+    df6 = pd.read_sql_table('tweets', get_con())
+    return df6
+
 
 df = get_data_charts()
 
@@ -81,23 +78,18 @@ topics = topics.replace('RT ', ' ').replace('&amp;', 'and')
 topics = re.sub('[^A-Za-z0-9]+', ' ', topics)
 topics = topics.lower()
 
-
 tokenized_words = word_tokenize(topics)
-stop_words=set(stopwords.words("english"))
+stop_words = set(stopwords.words("english"))
 
-stop_words.update(('uyghur','uyghurs','uighur','uighurs','house'))
+stop_words.update(('uyghur', 'uyghurs', 'uighur', 'uighurs', 'house'))
 
-
-filtered_sent=[]
+filtered_sent = []
 for w in tokenized_words:
     if w not in stop_words:
         filtered_sent.append(w)
 fdist = FreqDist(filtered_sent)
 fd = pd.DataFrame(fdist.most_common(20),
-                  columns = ["Word", "Frequency"]).drop([0]).reindex()
-
-
-
+                  columns=["Word", "Frequency"]).drop([0]).reindex()
 
 # End of data prep
 
@@ -108,14 +100,17 @@ data, timestamp = get_data()
 st.header('Tweepy StreamListener Dashboard: #FreeUyghurs, #FuckCCP')
 st.write('Total tweet count: {}'.format(data.shape[0]))
 st.write('Data last loaded {}'.format(timestamp))
-st.write('Listening to following keywords: Uyghur,uyghur,#uyghur,#freeuyghurs,#FreeUyghurs,#FreeUyghur,#UyghurLivesMatter,')
-st.write('#UyghurGenocide,#uyghur,#Uyghur,#Uyghurs,#uyghurs,freeyughurs,FreeUyghurs,Xinjiang,#Xinjiang,#EastTurkestan,uighur,Uighur,#uighur,#Uighur')
+st.write(
+    'Listening to following keywords: Uyghur,uyghur,#uyghur,#freeuyghurs,#FreeUyghurs,#FreeUyghur,#UyghurLivesMatter,')
+st.write(
+    '#UyghurGenocide,#uyghur,#Uyghur,#Uyghurs,#uyghurs,freeyughurs,FreeUyghurs,Xinjiang,#Xinjiang,#EastTurkestan,'
+    'uighur,Uighur,#uighur,#Uighur')
 
 col1, col2 = st.columns(2)
 
 date_options = data.Timestamp.dt.date.unique()
 start_date_option = st.sidebar.selectbox('Select Start Date', date_options, index=0)
-end_date_option = st.sidebar.selectbox('Select End Date', date_options, index=len(date_options)-1)
+end_date_option = st.sidebar.selectbox('Select End Date', date_options, index=len(date_options) - 1)
 
 keywords = data.Subject.unique()
 data_subjects = data
@@ -138,62 +133,54 @@ plot_freq_options = {
 plot_freq_box = st.sidebar.selectbox(label='Plot Frequency:', options=list(plot_freq_options.keys()), index=0)
 plot_freq = plot_freq_options[plot_freq_box]
 
-
 barchart = alt.Chart(fd).mark_bar().encode(
     alt.X('Frequency', axis=alt.Axis(title="")),
     alt.Y('Word', axis=alt.Axis(title="")),
     color=alt.Color('Frequency:Q', scale=alt.Scale(scheme='greens'))
 )
 
-
-
-
 col2.subheader('Tweet Volumes')
 plotdata = count_plot_data(data_daily, plot_freq)
 col2.line_chart(plotdata)
 
-
-
 col3, col4 = st.columns(2)
-
-
-
 
 col3.subheader('Most frequent words')
 col3.altair_chart(barchart, use_container_width=True)
 
-colors = color_discrete_sequence=px.colors.sequential.Aggrnyl
+colors = color_discrete_sequence = px.colors.sequential.Aggrnyl
 
 col4.subheader('Keyword distribution')
 valuecounts = df["keyword"].value_counts().tolist()
 uniquesubject = df["keyword"].unique()
 fig = px.pie(values=valuecounts, names=uniquesubject)
-fig.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20, marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
+fig.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20,
+                  marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
 col4.plotly_chart(fig, use_container_width=True)
 
 st.subheader('Visualisation of compound score values provided by vaderSentiment')
 
 compoundscore = df["sentiment"]
-df["compound_trunc"] = compoundscore.round(1) # Truncate compound scores into 0.1 buckets 
+df["compound_trunc"] = compoundscore.round(1)  # Truncate compound scores into 0.1 buckets
 
 res = (df.groupby(["compound_trunc"])["id"]
-        .count()
-        .reset_index()
-        .rename(columns={"id": "count"})
-      )
+       .count()
+       .reset_index()
+       .rename(columns={"id": "count"})
+       )
 
 hist = alt.Chart(res).mark_bar(width=35).encode(
     alt.X("compound_trunc:Q", axis=alt.Axis(title="")),
     y=alt.Y('count:Q', axis=alt.Axis(title="")),
-    color=alt.Color('compound_trunc:Q', scale=alt.Scale(scheme='redyellowgreen')), 
+    color=alt.Color('compound_trunc:Q', scale=alt.Scale(scheme='redyellowgreen')),
     tooltip=['compound_trunc', 'count']
 )
 
 scatter = alt.Chart(df).mark_point().encode(
     alt.X("tweet_date", axis=alt.Axis(title="")),
     y=alt.Y('sentiment', axis=alt.Axis(title="")),
-    color=alt.Color('sentiment:Q', scale=alt.Scale(scheme='redyellowgreen')), 
-    tooltip=['body', 'userid','sentiment:Q', 'tweet_date']
+    color=alt.Color('sentiment:Q', scale=alt.Scale(scheme='redyellowgreen')),
+    tooltip=['body', 'userid', 'sentiment:Q', 'tweet_date']
 )
 
 col5, col6 = st.columns(2)
@@ -202,4 +189,3 @@ col5.subheader('Truncated compound score distribution')
 col5.altair_chart(hist, use_container_width=True)
 col6.subheader('Scatter plot of clean compound score')
 col6.altair_chart(scatter, use_container_width=True)
-

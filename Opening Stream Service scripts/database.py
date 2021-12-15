@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from config import DBConfig
 import sqlalchemy
 
-
 googlesql = sqlalchemy.engine.url.URL.create(
     drivername="mysql+pymysql",
     username=DBConfig.db_user,
@@ -17,6 +16,7 @@ googlesql = sqlalchemy.engine.url.URL.create(
 engine = create_engine(googlesql)
 Session = scoped_session(sessionmaker(autocommit=False, bind=engine))
 Base = declarative_base()
+
 
 @contextmanager
 def session_scope():

@@ -169,7 +169,7 @@ fig = px.pie(values=valuecounts, names=uniquesubject)
 fig.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20, marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
 col4.plotly_chart(fig, use_container_width=True)
 
-st.subheader('Sentiment data analysis visualisation')
+st.subheader('Visualisation of compound score values provided by vaderSentiment')
 
 compoundscore = df["sentiment"]
 df["compound_trunc"] = compoundscore.round(1) # Truncate compound scores into 0.1 buckets 
@@ -196,8 +196,8 @@ scatter = alt.Chart(df).mark_point().encode(
 
 col5, col6 = st.columns(2)
 
-col5.subheader('Truncated compound vaderSentiment score')
+col5.subheader('Truncated compound score distribution')
 col5.altair_chart(hist, use_container_width=True)
-col6.subheader('Scatter plot of clean compound score provided by vaderSentiment')
+col6.subheader('Scatter plot of clean compound score')
 col6.altair_chart(scatter, use_container_width=True)
 

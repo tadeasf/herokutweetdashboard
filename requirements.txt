@@ -12,5 +12,4 @@ numpy
 seaborn
 altair
 cpython
-re
 nltk

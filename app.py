@@ -93,7 +93,7 @@ for w in tokenized_words:
     if w not in stop_words:
         filtered_sent.append(w)
 fdist = FreqDist(filtered_sent)
-fd = pd.DataFrame(fdist.most_common(10),
+fd = pd.DataFrame(fdist.most_common(20),
                   columns = ["Word", "Frequency"]).drop([0]).reindex()
 
 

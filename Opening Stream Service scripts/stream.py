@@ -3,6 +3,8 @@ from models import Tweet
 from tweepy.streaming import StreamListener
 import logging
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from textblob import TextBlob
+from autocorrect import Speller
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +24,15 @@ class TweetListener(StreamListener):
             text = status.extended_tweet['full_text']
         else:
             text = status.text
+            spell = Speller(lang='en')
+            aaargh = spell(text)
+            userisblb = TextBlob(aaargh)
+            blbcorrected = userisblb.correct()
             # this is where I can try to implement spelling correction later
         keyword = self.check_keyword(text)
         if not keyword:
             return
-        sentiment = self.sentiment_model.polarity_scores(text).get('compound')
+        sentiment = self.sentiment_model.polarity_scores(blbcorrected).get('compound')
         if sentiment == 0:
             return
         tweet = Tweet(body=text, keyword=keyword, tweet_date=status.created_at, followers=status.user.followers_count,

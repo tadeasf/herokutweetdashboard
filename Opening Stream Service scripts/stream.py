@@ -24,18 +24,19 @@ class TweetListener(StreamListener):
             text = status.extended_tweet['full_text']
         else:
             text = status.text
-            spell = Speller(lang='en')
-            aaargh = spell(text)
-            userisblb = TextBlob(aaargh)
-            blbcorrected = userisblb.correct()
-            # this is where I can try to implement spelling correction later
+        rawtext = text
+        spell = Speller(lang='en')
+        aaargh = spell(text)
+        userisblb = TextBlob(aaargh)
+        blbcorrected = userisblb.correct()
+# this is where I can try to implement spelling correction later
         keyword = self.check_keyword(text)
         if not keyword:
             return
         sentiment = self.sentiment_model.polarity_scores(blbcorrected).get('compound')
         if sentiment == 0:
             return
-        tweet = Tweet(body=text, keyword=keyword, tweet_date=status.created_at, followers=status.user.followers_count,
+        tweet = Tweet(body=rawtext, keyword=keyword, tweet_date=status.created_at, followers=status.user.followers_count,
                       tweetid=status.id, userid=status.user.id, tweetsource=status.source, sentiment=sentiment)
         self.insert_tweet(tweet)
 

@@ -164,7 +164,7 @@ def basic_clean(text):
 
 wordsforngram = basic_clean(''.join(str(df['body'].tolist())))
 bigram_series = (pd.Series(nltk.ngrams(wordsforngram, 2)).value_counts())[:12]
-bigramgraphax = bigram_series.sort_values().plot.barh(color='green', width=.9, figsize=(12, 12))
+bigramgraphax = bigram_series.sort_values().plot.barh(color='green', width=.9, figsize=(12, 10))
 plt.ylabel('Bigram')
 plt.xlabel('# of Occurances')
 

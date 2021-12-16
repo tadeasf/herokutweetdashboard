@@ -150,8 +150,6 @@ col3.altair_chart(barchart, use_container_width=True)
 
 ADDITIONAL_STOPWORDS = ['nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
 
-nltk.download('wordnet')
-
 
 def basic_clean(text):
     wnl = nltk.stem.WordNetLemmatizer()

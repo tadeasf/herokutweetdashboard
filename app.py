@@ -1,3 +1,4 @@
+import nltk
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
@@ -10,6 +11,7 @@ import re
 from nltk.probability import FreqDist
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+import unicodedata
 
 googlesql = sqlalchemy.engine.url.URL.create(
     drivername="mysql+pymysql",
@@ -189,3 +191,42 @@ col5.subheader('Truncated compound score distribution')
 col5.altair_chart(hist, use_container_width=True)
 col6.subheader('Scatter plot of clean compound score')
 col6.altair_chart(scatter, use_container_width=True)
+#  todo: bigram from keywords
+#ADDITIONAL_STOPWORDS = ['nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
+#def basic_clean(text):
+#    wnl = nltk.stem.WordNetLemmatizer()
+#    stopwordsforbigram = nltk.corpus.stopwords.words('english') + ADDITIONAL_STOPWORDS
+#    text = (unicodedata.normalize('NFKD', text)
+#            .encode('ascii', 'ignore')
+#            .decode('utf-8', 'ignore')
+#            .lower())
+#    words = re.sub(r'[^\w\s]', '', text).split()
+#    return [wnl.lemmatize(word) for word in words if word not in stopwordsforbigram]
+#wordsforngram = basic_clean(''.join(str(df['body'].tolist())))
+#var = (pd.DataFrame(nltk.ngrams(wordsforngram, 2)))
+#print(var)
+#  todo: Named entity recognition: get to know other topics
+#  the users are tweeting about. Eg my topic is uyghurs in xinjiang. What they talk about the most? China? CCP? I
+#  looked more into NER. Getting some output with spacy shouldn't be much of an issue. I don't need this to be
+#  terrible thorough. Few issues I can think of that will need solving: Where to should I push the output? Inside the
+#  SQL library? For one tweet they can be multiple terms.. How to set it up? In the end, what can I use this output
+#  for? Checking most common keyword-NER pairs? Is it gonna be useful for my analysis? - also it looks like this is
+#  implemented by Twitter itself to some extent. I have to do more research. Consult:
+#  https://developer.twitter.com/en/docs/twitter-api/annotations/overview
+col7, col8 = st.columns(2)
+
+sourcevalue = df['tweetsource'].value_counts().tolist()
+sourcesubject = df['tweetsource'].unique()
+
+sourcepie = px.pie(df, values=sourcevalue, names=sourcesubject)
+sourcepie.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20,
+                        marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
+
+col7.subheader('Most used platforms for tweeting')
+col7.plotly_chart(sourcepie, use_container_width=True)
+
+
+
+
+
+

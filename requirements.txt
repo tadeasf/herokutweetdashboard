@@ -15,3 +15,4 @@ cpython
 nltk
 textblob
 autocorrect
+nltk

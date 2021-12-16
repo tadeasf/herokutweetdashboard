@@ -163,12 +163,12 @@ def basic_clean(text):
 
 
 wordsforngram = basic_clean(''.join(str(df['body'].tolist())))
-bigram_series = (pd.Series(nltk.ngrams(wordsforngram, 2)).value_counts())[:14]
-bigramgraphax = bigram_series.sort_values().plot.barh(color='green', width=.9, figsize=(12, 8))
+bigram_series = (pd.Series(nltk.ngrams(wordsforngram, 2)).value_counts())[:12]
+bigramgraphax = bigram_series.sort_values().plot.barh(color='green', width=.9, figsize=(12, 12))
 plt.ylabel('Bigram')
 plt.xlabel('# of Occurances')
 
-col4.subheader('14 Most Frequently Occuring Bigrams')
+col4.subheader('12 Most Frequently Occuring Bigrams')
 col4.pyplot(bigramgraphax.figure, use_container_width=True)
 
 st.subheader('Visualisation of compound score values provided by vaderSentiment')

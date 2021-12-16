@@ -1,6 +1,5 @@
 import datetime
 import re
-
 import altair as alt
 import pandas as pd
 import plotly.express as px
@@ -10,8 +9,10 @@ from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 from nltk.tokenize import word_tokenize
 from sqlalchemy import create_engine
-
 from config import DBConfig
+import unicodedata
+import nltk
+import matplotlib.pyplot as plt
 
 googlesql = sqlalchemy.engine.url.URL.create(
     drivername="mysql+pymysql",
@@ -152,15 +153,28 @@ col3, col4 = st.columns(2)
 col3.subheader('Most frequent words')
 col3.altair_chart(barchart, use_container_width=True)
 
-colors = color_discrete_sequence = px.colors.sequential.Aggrnyl
+ADDITIONAL_STOPWORDS = ['nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
 
-col4.subheader('Keyword distribution')
-valuecounts = df["keyword"].value_counts().tolist()
-uniquesubject = df["keyword"].unique()
-fig = px.pie(values=valuecounts, names=uniquesubject)
-fig.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20,
-                  marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
-col4.plotly_chart(fig, use_container_width=True)
+
+def basic_clean(text):
+    wnl = nltk.stem.WordNetLemmatizer()
+    stopwordsforbigram = nltk.corpus.stopwords.words('english') + ADDITIONAL_STOPWORDS
+    text = (unicodedata.normalize('NFKD', text)
+            .encode('ascii', 'ignore')
+            .decode('utf-8', 'ignore')
+            .lower())
+    words = re.sub(r'[^\w\s]', '', text).split()
+    return [wnl.lemmatize(word) for word in words if word not in stopwordsforbigram]
+
+
+wordsforngram = basic_clean(''.join(str(df['body'].tolist())))
+bigram_series = (pd.Series(nltk.ngrams(wordsforngram, 2)).value_counts())[:12]
+bigramgraphax = bigram_series.sort_values().plot.barh(color='green', width=.9, figsize=(12, 8))
+plt.ylabel('Bigram')
+plt.xlabel('# of Occurances')
+
+col4.subheader('12 Most Frequently Occuring Bigrams')
+col4.pyplot(bigramgraphax.figure, use_container_width=True)
 
 st.subheader('Visualisation of compound score values provided by vaderSentiment')
 
@@ -194,19 +208,6 @@ col5.altair_chart(hist, use_container_width=True)
 col6.subheader('Scatter plot of clean compound score')
 col6.altair_chart(scatter, use_container_width=True)
 #  todo: bigram from keywords
-# ADDITIONAL_STOPWORDS = ['nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
-# def basic_clean(text):
-#    wnl = nltk.stem.WordNetLemmatizer()
-#    stopwordsforbigram = nltk.corpus.stopwords.words('english') + ADDITIONAL_STOPWORDS
-#    text = (unicodedata.normalize('NFKD', text)
-#            .encode('ascii', 'ignore')
-#            .decode('utf-8', 'ignore')
-#            .lower())
-#    words = re.sub(r'[^\w\s]', '', text).split()
-#    return [wnl.lemmatize(word) for word in words if word not in stopwordsforbigram]
-# wordsforngram = basic_clean(''.join(str(df['body'].tolist())))
-# var = (pd.DataFrame(nltk.ngrams(wordsforngram, 2)))
-# print(var)
 #  todo: Named entity recognition: get to know other topics
 #  the users are tweeting about. Eg my topic is uyghurs in xinjiang. What they talk about the most? China? CCP? I
 #  looked more into NER. Getting some output with spacy shouldn't be much of an issue. I don't need this to be
@@ -220,9 +221,19 @@ col7, col8 = st.columns(2)
 sourcevalue = df['tweetsource'].value_counts().tolist()
 sourcesubject = df['tweetsource'].unique()
 
+colors = color_discrete_sequence = px.colors.sequential.Aggrnyl
+
 sourcepie = px.pie(df, values=sourcevalue, names=sourcesubject)
 sourcepie.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20,
                         marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
 
 col7.subheader('Most used platforms for tweeting')
 col7.plotly_chart(sourcepie, use_container_width=True)
+
+col8.subheader('Keyword distribution')
+valuecounts = df["keyword"].value_counts().tolist()
+uniquesubject = df["keyword"].unique()
+fig = px.pie(values=valuecounts, names=uniquesubject)
+fig.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20,
+                  marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
+col8.plotly_chart(fig, use_container_width=True)

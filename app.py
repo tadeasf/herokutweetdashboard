@@ -104,12 +104,7 @@ st.header('Tweepy StreamListener Dashboard: #FreeUyghurs, #FuckCCP')
 st.write('Total tweet count: {}'.format(data.shape[0]))
 st.write('Data last loaded {}'.format(timestamp))
 st.write('Running since 12/14/2021')
-st.write(
-    'Listening to following keywords: Uyghur,uyghur,#uyghur,#freeuyghurs,#FreeUyghurs,#FreeUyghur,#UyghurLivesMatter,')
-st.write(
-    '#UyghurGenocide,#uyghur,#Uyghur,#Uyghurs,#uyghurs,freeyughurs,FreeUyghurs,Xinjiang,#Xinjiang,#EastTurkestan,'
-    'uighur,Uighur,#uighur,#Uighur')
-st.write('Next TODO: adding bigram barplot!')
+st.write('Listening to following keywords: Uyghur, Uighur, Xinjiang')
 
 col1, col2 = st.columns(2)
 
@@ -207,7 +202,6 @@ col5.subheader('Truncated compound score distribution')
 col5.altair_chart(hist, use_container_width=True)
 col6.subheader('Scatter plot of clean compound score')
 col6.altair_chart(scatter, use_container_width=True)
-#  todo: bigram from keywords
 #  todo: Named entity recognition: get to know other topics
 #  the users are tweeting about. Eg my topic is uyghurs in xinjiang. What they talk about the most? China? CCP? I
 #  looked more into NER. Getting some output with spacy shouldn't be much of an issue. I don't need this to be

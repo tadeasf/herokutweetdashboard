@@ -1,17 +1,17 @@
-import nltk
-import streamlit as st
-import pandas as pd
-from sqlalchemy import create_engine
-from config import DBConfig
 import datetime
-import sqlalchemy
-import plotly.express as px
-import altair as alt
 import re
+
+import altair as alt
+import pandas as pd
+import plotly.express as px
+import sqlalchemy
+import streamlit as st
+from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-import unicodedata
+from sqlalchemy import create_engine
+
+from config import DBConfig
 
 googlesql = sqlalchemy.engine.url.URL.create(
     drivername="mysql+pymysql",
@@ -102,11 +102,13 @@ data, timestamp = get_data()
 st.header('Tweepy StreamListener Dashboard: #FreeUyghurs, #FuckCCP')
 st.write('Total tweet count: {}'.format(data.shape[0]))
 st.write('Data last loaded {}'.format(timestamp))
+st.write('Running since 12/14/2021')
 st.write(
     'Listening to following keywords: Uyghur,uyghur,#uyghur,#freeuyghurs,#FreeUyghurs,#FreeUyghur,#UyghurLivesMatter,')
 st.write(
     '#UyghurGenocide,#uyghur,#Uyghur,#Uyghurs,#uyghurs,freeyughurs,FreeUyghurs,Xinjiang,#Xinjiang,#EastTurkestan,'
     'uighur,Uighur,#uighur,#Uighur')
+st.write('Next TODO: adding bigram barplot!')
 
 col1, col2 = st.columns(2)
 
@@ -192,8 +194,8 @@ col5.altair_chart(hist, use_container_width=True)
 col6.subheader('Scatter plot of clean compound score')
 col6.altair_chart(scatter, use_container_width=True)
 #  todo: bigram from keywords
-#ADDITIONAL_STOPWORDS = ['nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
-#def basic_clean(text):
+# ADDITIONAL_STOPWORDS = ['nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
+# def basic_clean(text):
 #    wnl = nltk.stem.WordNetLemmatizer()
 #    stopwordsforbigram = nltk.corpus.stopwords.words('english') + ADDITIONAL_STOPWORDS
 #    text = (unicodedata.normalize('NFKD', text)
@@ -202,9 +204,9 @@ col6.altair_chart(scatter, use_container_width=True)
 #            .lower())
 #    words = re.sub(r'[^\w\s]', '', text).split()
 #    return [wnl.lemmatize(word) for word in words if word not in stopwordsforbigram]
-#wordsforngram = basic_clean(''.join(str(df['body'].tolist())))
-#var = (pd.DataFrame(nltk.ngrams(wordsforngram, 2)))
-#print(var)
+# wordsforngram = basic_clean(''.join(str(df['body'].tolist())))
+# var = (pd.DataFrame(nltk.ngrams(wordsforngram, 2)))
+# print(var)
 #  todo: Named entity recognition: get to know other topics
 #  the users are tweeting about. Eg my topic is uyghurs in xinjiang. What they talk about the most? China? CCP? I
 #  looked more into NER. Getting some output with spacy shouldn't be much of an issue. I don't need this to be
@@ -224,9 +226,3 @@ sourcepie.update_traces(textposition='inside', textinfo='percent+label', textfon
 
 col7.subheader('Most used platforms for tweeting')
 col7.plotly_chart(sourcepie, use_container_width=True)
-
-
-
-
-
-

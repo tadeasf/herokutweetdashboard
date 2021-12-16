@@ -101,10 +101,10 @@ st.set_page_config(layout="wide", page_title='StreamListenerDashboard')
 data, timestamp = get_data()
 
 st.header('Tweepy StreamListener Dashboard: #FreeUyghurs, #FuckCCP')
-st.write('Total tweet count: {}'.format(data.shape[0]))
-st.write('Data last loaded {}'.format(timestamp))
-st.write('Running since 12/14/2021')
-st.write('Listening to following keywords: Uyghur, Uighur, Xinjiang')
+st.markdown('Total tweet count: **{}**'.format(data.shape[0]))
+st.markdown('Data last loaded **{}**'.format(timestamp))
+st.markdown('Running since: **12/14/2021**')
+st.markdown('Listening to following keywords: **Uyghur, Uighur, Xinjiang**')
 
 col1, col2 = st.columns(2)
 

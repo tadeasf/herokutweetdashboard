@@ -68,7 +68,6 @@ def sentiment_plot_data(df5, freq):
 
 @st.cache(allow_output_mutation=True, show_spinner=False)
 def get_data_charts():
-    # noinspection PyPackageRequirements
     df6 = pd.read_sql_table('tweets', get_con())
     return df6
 
@@ -118,9 +117,6 @@ data_daily = filter_by_date(data_subjects, start_date_option, end_date_option)
 
 top_daily_tweets = data_daily.sort_values(['Followers'], ascending=False).head(10)
 
-# col1.subheader('Influential Tweets') 
-# col1.dataframe(top_daily_tweets[['Tweet', 'Timestamp', 'Followers', 'Subject']].reset_index(drop=True), 1000, 400)
-
 col1.subheader('Recent Tweets')
 col1.dataframe(data_daily[['Tweet', 'Timestamp', 'Followers', 'Subject']].sort_values(['Timestamp'], ascending=False).
                reset_index(drop=True).head(10))
@@ -163,13 +159,40 @@ def basic_clean(text):
 
 
 wordsforngram = basic_clean(''.join(str(df['body'].tolist())))
+
+wordsforngram2 = basic_clean(''.join(str(df['body'].tolist())))
+
+wordsforngram3 = basic_clean(''.join(str(df['body'].tolist())))
+
+col5, col6 = st.columns(2)
+
 bigram_series = (pd.Series(nltk.ngrams(wordsforngram, 2)).value_counts())[:12]
-bigramgraphax = bigram_series.sort_values().plot.barh(color='green', width=.9, figsize=(12, 9))
+bigramgraphax = bigram_series.sort_values().plot.barh(color='darkgreen', width=.9, figsize=(14, 7))
 plt.ylabel('Bigram')
 plt.xlabel('# of Occurances')
 
-col4.subheader('12 Most Frequently Occuring Bigrams')
-col4.pyplot(bigramgraphax.figure, use_container_width=True)
+
+col5.subheader('12 Most Frequently Occuring Bigrams')
+col5.pyplot(bigramgraphax.figure, use_container_width=True)
+
+trigram_series = (pd.Series(nltk.ngrams(wordsforngram2, 3)).value_counts())[:12]
+trigramgraphax = trigram_series.sort_values().plot.barh(color='darkgreen', width=.9, figsize=(14, 7))
+plt.ylabel('Trigram')
+plt.xlabel('# of Occurances')
+
+
+col6.subheader('12 Most Frequently Occuring Trigrams')
+col6.pyplot(trigramgraphax.figure, use_container_width=True)
+
+quadrigram_series = (pd.Series(nltk.ngrams(wordsforngram3, 4)).value_counts())[:12]
+quadrigrampgraphax = quadrigram_series.sort_values().plot.barh(color='darkgreen', width=.9, figsize=(14, 7))
+plt.ylabel('Quadrigram')
+plt.xlabel('# of Occurances')
+
+dalsiradek1, dalsiradek2 = st.columns(2)
+
+dalsiradek1.subheader('12 Most Frequently Occuring Quadrigrams')
+dalsiradek1.pyplot(quadrigrampgraphax.figure, use_container_width=True)
 
 st.subheader('Visualisation of compound score values provided by vaderSentiment')
 
@@ -196,12 +219,12 @@ scatter = alt.Chart(df).mark_point().encode(
     tooltip=['body', 'userid', 'sentiment:Q', 'tweet_date']
 )
 
-col5, col6 = st.columns(2)
+col7, col8 = st.columns(2)
 
-col5.subheader('Truncated compound score distribution')
-col5.altair_chart(hist, use_container_width=True)
-col6.subheader('Scatter plot of clean compound score')
-col6.altair_chart(scatter, use_container_width=True)
+col7.subheader('Truncated compound score distribution')
+col7.altair_chart(hist, use_container_width=True)
+col8.subheader('Scatter plot of clean compound score')
+col8.altair_chart(scatter, use_container_width=True)
 #  todo: Named entity recognition: get to know other topics
 #  the users are tweeting about. Eg my topic is uyghurs in xinjiang. What they talk about the most? China? CCP? I
 #  looked more into NER. Getting some output with spacy shouldn't be much of an issue. I don't need this to be
@@ -210,7 +233,9 @@ col6.altair_chart(scatter, use_container_width=True)
 #  for? Checking most common keyword-NER pairs? Is it gonna be useful for my analysis? - also it looks like this is
 #  implemented by Twitter itself to some extent. I have to do more research. Consult:
 #  https://developer.twitter.com/en/docs/twitter-api/annotations/overview
-col7, col8 = st.columns(2)
+
+st.subheader('Piecharts! Because who doesnt like Pacman?!')
+col9, col10 = st.columns(2)
 
 sourcevalue = df['tweetsource'].value_counts().tolist()
 sourcesubject = df['tweetsource'].unique()
@@ -221,13 +246,25 @@ sourcepie = px.pie(df, values=sourcevalue, names=sourcesubject)
 sourcepie.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20,
                         marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
 
-col7.subheader('Most used platforms for tweeting')
-col7.plotly_chart(sourcepie, use_container_width=True)
+col9.subheader('Most used platforms for tweeting')
+col9.plotly_chart(sourcepie, use_container_width=True)
 
-col8.subheader('Keyword distribution')
-valuecounts = df["keyword"].value_counts().tolist()
-uniquesubject = df["keyword"].unique()
-fig = px.pie(values=valuecounts, names=uniquesubject)
+
+piechartsource = get_data_charts()
+keywordcount = piechartsource["keyword"].value_counts().tolist()
+keywordindex = piechartsource["keyword"].value_counts().index.tolist()
+uniquesubject = piechartsource["keyword"].unique()
+
+
+fig = px.pie(values=keywordcount, names=keywordindex)
 fig.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20,
                   marker=dict(colors=colors, line=dict(color='#000000', width=0.5)))
-col8.plotly_chart(fig, use_container_width=True)
+
+col10.subheader('Keyword distribution')
+col10.plotly_chart(fig, use_container_width=True)
+
+# col9, col10 = st.columns(2)
+# col9.subheader('Influential Tweets')
+# col9.dataframe(top_daily_tweets[['Tweet', 'Sentiment', 'Followers', 'Subject']].reset_index(drop=True), 1000, 400)
+# todo: add similar thing to col9 topdaily tweets where you'll show most retweeted tweets
+# todo: add maps

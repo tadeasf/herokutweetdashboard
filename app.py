@@ -31,7 +31,7 @@ def get_con():
 @st.cache(allow_output_mutation=True, show_spinner=False, ttl=5 * 60)
 def get_data():
     timeisvaluable = datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-    df1 = pd.read_sql_table('tweets', get_con())
+    df1 = pd.read_sql_table('test-oracle3', get_con())
     df1 = df1.rename(columns={'body': 'Tweet', 'tweet_date': 'Timestamp',
                               'followers': 'Followers', 'sentiment': 'Sentiment',
                               'keyword': 'Subject', 'tweetsource': 'Tweeting platform', 'tweetid': 'Tweet ID'})
@@ -70,7 +70,7 @@ def sentiment_plot_data(df5, freq):
 
 @st.cache(allow_output_mutation=True, show_spinner=False)
 def get_data_charts():
-    df6 = pd.read_sql_table('tweets', get_con())
+    df6 = pd.read_sql_table('test-oracle3', get_con())
     return df6
 
 
@@ -85,7 +85,7 @@ topics = topics.lower()
 tokenized_words = word_tokenize(topics)
 stop_words = set(stopwords.words("english"))
 
-stop_words.update(('uyghur', 'uyghurs', 'uighur', 'uighurs', 'house'))
+stop_words.update(('uyghur', 'uyghurs', 'uighur', 'uighurs', 'house')) # tady jsou stopwords, přidej podle bi-gramů
 
 filtered_sent = []
 for w in tokenized_words:
@@ -101,11 +101,14 @@ st.set_page_config(layout="wide", page_title='StreamListenerDashboard')
 
 data, timestamp = get_data()
 
-st.header('Tweepy StreamListener Dashboard: #FreeUyghurs, #FuckCCP')
+st.header('Tweepy StreamListener Dashboard: Reflections of communism in Romania')
 st.markdown('Total tweet count: **{}**'.format(data.shape[0]))
 st.markdown('Data last loaded **{}**'.format(timestamp))
-st.markdown('Running since: **12/14/2021**')
-st.markdown('Listening to following keywords: **Uyghur, Uighur, Xinjiang**')
+st.markdown('Running since: **21/7/2022**')
+st.markdown('Listening to following keywords: **Ceaușescu, Ceausescu, ceaușescu, ceaușescu, tovaras, decree 770, decree770, #decree770, #Ceaușescu,'
+            '#Ceausescu, #ceaușescu, #ceaușescu, Tovarășul, tovarășul, tovarasul, Gheorghiu-Dej, dheorghiu-dej, comunistă, geniul din carpati, Geniul din Carpati,'
+            'communist nostalgia, Iliescu, iliescu, Dăscălescu, dăscălescu, Dascalescu, dascalescu, Stănculescu, stănculescu, stanculescu, Stanculescu, Bârlădeanu,'
+            'Barladeanu, caramitru, Caramitru, dinescu, nicolaescu**')
 
 col1, col2 = st.columns(2)
 
@@ -211,16 +214,8 @@ st.subheader(
     'Visualisation of compound score values provided by vaderSentiment')
 
 compoundscore = df["sentiment"]
-
 # Truncate compound scores into 0.1 buckets
 df["compound_trunc"] = compoundscore.round(1)
-
-# compound_trunc = df['compound_trunc']
-
-if df['compound_trunc'] == 0:
-    df['compound_trunc'] = null
-else:
-    df['compound_trunc']
 
 res = (df.groupby(["compound_trunc"])["id"]
        .count()

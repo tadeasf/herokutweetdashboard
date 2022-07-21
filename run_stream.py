@@ -46,3 +46,8 @@ def start_stream():
 
 if __name__ == '__main__':
     start_stream()
+
+
+# current keywords: "Ceaușescu,Ceausescu,ceaușescu,ceaușescu,tovaras,decree 770,decree770,#decree770,#Ceaușescu,
+# #Ceausescu,#ceaușescu,#ceaușescu,Tovarășul,tovarășul,tovarasul,Gheorghiu-Dej,dheorghiu-dej,comunistă,geniul din carpati,Geniul din Carpati,Iliescu,iliescu,
+# Dăscălescu,dăscălescu,Dascalescu,dascalescu,Stănculescu,stănculescu,stanculescu,Stanculescu,Bârlădeanu,Barladeanu,caramitru,Caramitru,dinescu,nicolaescu"

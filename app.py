@@ -8,7 +8,7 @@ import streamlit as st
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 from nltk.tokenize import word_tokenize
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, null
 from config import DBConfig
 import unicodedata
 import nltk
@@ -40,7 +40,8 @@ def get_data():
 
 @st.cache(show_spinner=False)
 def filter_by_date(df2, start_date, end_date):
-    df_filtered = df2.loc[(df2.Timestamp.dt.date >= start_date) & (df2.Timestamp.dt.date <= end_date)]
+    df_filtered = df2.loc[(df2.Timestamp.dt.date >= start_date) & (
+        df2.Timestamp.dt.date <= end_date)]
     return df_filtered
 
 
@@ -51,7 +52,8 @@ def filter_by_subject(df3, subjects):
 
 @st.cache
 def count_plot_data(df4, freq):
-    plot_df = df4.set_index('Timestamp').groupby('Subject').resample(freq).id.count().unstack(level=0, fill_value=0)
+    plot_df = df4.set_index('Timestamp').groupby('Subject').resample(
+        freq).id.count().unstack(level=0, fill_value=0)
     plot_df.index.rename('Date', inplace=True)
     plot_df = plot_df.rename_axis(None, axis='columns')
     return plot_df
@@ -108,14 +110,17 @@ st.markdown('Listening to following keywords: **Uyghur, Uighur, Xinjiang**')
 col1, col2 = st.columns(2)
 
 date_options = data.Timestamp.dt.date.unique()
-start_date_option = st.sidebar.selectbox('Select Start Date', date_options, index=0)
-end_date_option = st.sidebar.selectbox('Select End Date', date_options, index=len(date_options) - 1)
+start_date_option = st.sidebar.selectbox(
+    'Select Start Date', date_options, index=0)
+end_date_option = st.sidebar.selectbox(
+    'Select End Date', date_options, index=len(date_options) - 1)
 
 keywords = data.Subject.unique()
 data_subjects = data
 data_daily = filter_by_date(data_subjects, start_date_option, end_date_option)
 
-top_daily_tweets = data_daily.sort_values(['Followers'], ascending=False).head(10)
+top_daily_tweets = data_daily.sort_values(
+    ['Followers'], ascending=False).head(10)
 
 col1.subheader('Recent Tweets')
 col1.dataframe(data_daily[['Tweet', 'Timestamp', 'Followers', 'Subject']].sort_values(['Timestamp'], ascending=False).
@@ -126,7 +131,8 @@ plot_freq_options = {
     'Four Hourly': '4H',
     'Daily': 'D'
 }
-plot_freq_box = st.sidebar.selectbox(label='Plot Frequency:', options=list(plot_freq_options.keys()), index=0)
+plot_freq_box = st.sidebar.selectbox(
+    label='Plot Frequency:', options=list(plot_freq_options.keys()), index=0)
 plot_freq = plot_freq_options[plot_freq_box]
 
 barchart = alt.Chart(fd).mark_bar().encode(
@@ -144,12 +150,14 @@ col3, col4 = st.columns(2)
 col3.subheader('Most frequent words')
 col3.altair_chart(barchart, use_container_width=True)
 
-ADDITIONAL_STOPWORDS = ['nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
+ADDITIONAL_STOPWORDS = [
+    'nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
 
 
 def basic_clean(text):
     wnl = nltk.stem.WordNetLemmatizer()
-    stopwordsforbigram = nltk.corpus.stopwords.words('english') + ADDITIONAL_STOPWORDS
+    stopwordsforbigram = nltk.corpus.stopwords.words(
+        'english') + ADDITIONAL_STOPWORDS
     text = (unicodedata.normalize('NFKD', text)
             .encode('ascii', 'ignore')
             .decode('utf-8', 'ignore')
@@ -167,7 +175,8 @@ wordsforngram3 = basic_clean(''.join(str(df['body'].tolist())))
 col5, col6 = st.columns(2)
 
 bigram_series = (pd.Series(nltk.ngrams(wordsforngram, 2)).value_counts())[:12]
-bigramgraphax = bigram_series.sort_values().plot.barh(color='darkgreen', width=.9, figsize=(14, 7))
+bigramgraphax = bigram_series.sort_values().plot.barh(
+    color='darkgreen', width=.9, figsize=(14, 7))
 plt.ylabel('Bigram')
 plt.xlabel('# of Occurances')
 
@@ -175,8 +184,10 @@ plt.xlabel('# of Occurances')
 col5.subheader('12 Most Frequently Occuring Bigrams')
 col5.pyplot(bigramgraphax.figure, use_container_width=True)
 
-trigram_series = (pd.Series(nltk.ngrams(wordsforngram2, 3)).value_counts())[:12]
-trigramgraphax = trigram_series.sort_values().plot.barh(color='darkgreen', width=.9, figsize=(14, 7))
+trigram_series = (pd.Series(nltk.ngrams(
+    wordsforngram2, 3)).value_counts())[:12]
+trigramgraphax = trigram_series.sort_values().plot.barh(
+    color='darkgreen', width=.9, figsize=(14, 7))
 plt.ylabel('Trigram')
 plt.xlabel('# of Occurances')
 
@@ -184,8 +195,10 @@ plt.xlabel('# of Occurances')
 col6.subheader('12 Most Frequently Occuring Trigrams')
 col6.pyplot(trigramgraphax.figure, use_container_width=True)
 
-quadrigram_series = (pd.Series(nltk.ngrams(wordsforngram3, 4)).value_counts())[:12]
-quadrigrampgraphax = quadrigram_series.sort_values().plot.barh(color='darkgreen', width=.9, figsize=(14, 7))
+quadrigram_series = (pd.Series(nltk.ngrams(
+    wordsforngram3, 4)).value_counts())[:12]
+quadrigrampgraphax = quadrigram_series.sort_values().plot.barh(
+    color='darkgreen', width=.9, figsize=(14, 7))
 plt.ylabel('Quadrigram')
 plt.xlabel('# of Occurances')
 
@@ -194,10 +207,20 @@ dalsiradek1, dalsiradek2 = st.columns(2)
 dalsiradek1.subheader('12 Most Frequently Occuring Quadrigrams')
 dalsiradek1.pyplot(quadrigrampgraphax.figure, use_container_width=True)
 
-st.subheader('Visualisation of compound score values provided by vaderSentiment')
+st.subheader(
+    'Visualisation of compound score values provided by vaderSentiment')
 
 compoundscore = df["sentiment"]
-df["compound_trunc"] = compoundscore.round(1)  # Truncate compound scores into 0.1 buckets
+
+# Truncate compound scores into 0.1 buckets
+df["compound_trunc"] = compoundscore.round(1)
+
+# compound_trunc = df['compound_trunc']
+
+if df['compound_trunc'] == 0:
+    df['compound_trunc'] = null
+else:
+    df['compound_trunc']
 
 res = (df.groupby(["compound_trunc"])["id"]
        .count()
@@ -208,7 +231,8 @@ res = (df.groupby(["compound_trunc"])["id"]
 hist = alt.Chart(res).mark_bar(width=35).encode(
     alt.X("compound_trunc:Q", axis=alt.Axis(title="")),
     y=alt.Y('count:Q', axis=alt.Axis(title="")),
-    color=alt.Color('compound_trunc:Q', scale=alt.Scale(scheme='redyellowgreen')),
+    color=alt.Color('compound_trunc:Q', scale=alt.Scale(
+        scheme='redyellowgreen')),
     tooltip=['compound_trunc', 'count']
 )
 

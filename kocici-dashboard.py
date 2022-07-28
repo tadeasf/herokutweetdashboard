@@ -1,6 +1,7 @@
 import datetime
 import re
 import altair as alt
+from numpy import empty
 import pandas as pd
 import plotly.express as px
 import sqlalchemy
@@ -90,7 +91,11 @@ topics = topics.lower()
 tokenized_words = word_tokenize(topics)
 stop_words = set(stopwords.words("english"))
 
-stop_words.update(('uyghur', 'uyghurs', 'uighur', 'uighurs', 'house'))
+stop_words.update((
+    "ceau", "escu", "week", "sir", "pm", "handling", "floor",
+    "absolutely", "rt", "mop", "he", "exactly", "like", "like", "whether",
+    "emotional", "may", "ad"
+))
 
 filtered_sent = []
 for w in tokenized_words:
@@ -146,7 +151,10 @@ col3.subheader('Most frequent words')
 col3.altair_chart(barchart, use_container_width=True)
 
 ADDITIONAL_STOPWORDS = [
-    'nuyghursnxinjiangnsoundofhopeoh', 'nuyghursnxinjiangnsoundofhopeoh,']
+    "ceau", "escu", "week", "sir", "pm", "handling", "floor",
+    "absolutely", "rt", "mop", "he", "exactly", "like", "like", "whether",
+    "emotional", "may", "ad"
+]
 
 
 def basic_clean(text):

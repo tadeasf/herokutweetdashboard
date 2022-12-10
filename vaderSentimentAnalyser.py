@@ -34,7 +34,7 @@ def get_con():
     return create_engine(googlesql)
 
 
-df = pd.read_sql_table('tweetyAgregace', get_con())
+df = pd.read_sql_table('tokTweetsExcelled', get_con())
 text = df['body']
 
 rawtext = text.to_string()
@@ -49,7 +49,7 @@ def vader_sentiment(text):
     return sent_i.polarity_scores(text)['compound']
 
 
-df['sentiment'] = blbcorrected.apply(vader_sentiment)
-print(df['sentiment'])
+df['sentiment'] = text.apply(vader_sentiment)
+print(df)
 df.to_csv("/home/tadeas/stunome-socialmedianalysis-python/analysed_tweets4.csv",
           encoding="utf-8", index=False)

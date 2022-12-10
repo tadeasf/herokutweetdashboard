@@ -42,9 +42,9 @@ def get_con():
 df = pd.read_sql_table('tokTweetsExcelled', get_con())
 text = df['body']
 
-rawtext = text.to_string()
-spell = Speller(lang='en')
-blbcorrected = spell(rawtext)
+#rawtext = text.to_string()
+#spell = Speller(lang='en')
+#blbcorrected = spell(rawtext)
 
 sent_i = SentimentIntensityAnalyzer()
 

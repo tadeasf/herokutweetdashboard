@@ -28,7 +28,12 @@ googlesql = sqlalchemy.engine.url.URL.create(
     host=DBConfig.db_host,
     port=DBConfig.db_port,
     database=DBConfig.db_name)
-
+# nejdriv vytazeny tweety z monga do aws mysql db
+# properties nasledujici: bud int, text nebo varchar(1000)
+# pak to jde
+# problem je v tom, ze proste nejak nevim jak to vyresit tak, aby zacaly fungovat tweety, ktery jsou spellchecknuty
+# cesta muze byt v tom prave nejdriv procistit, stahnout csv, nahrat do db a s tim az pracovat
+# cesta ve vyse zminenem neni, pak to vyhodnoti vse stejne. vzit proste cisty body, na tom to funguje
 
 def get_con():
     return create_engine(googlesql)
@@ -51,5 +56,5 @@ def vader_sentiment(text):
 
 df['sentiment'] = text.apply(vader_sentiment)
 print(df)
-df.to_csv("/home/tadeas/stunome-socialmedianalysis-python/analysed_tweets4.csv",
+df.to_csv("/home/tadeas/stunome-socialmedianalysis-python/tokTweetsSentimented.csv",
           encoding="utf-8", index=False)
